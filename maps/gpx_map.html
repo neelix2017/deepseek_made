@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,131 +49,97 @@ const crs_si = new L.Proj.CRS(
   "EPSG:3794", // EPSG code
   proj4.defs("EPSG:3794"), // Proj4 definition
   {
-    resolutions: calculateResolutions(), // Example resolutions (adjust based on your tiles)
-	//scales: [ 524288000, 262144000, 131072000, 65536000, 32768000, 16384000, 8192000, 4096000, 2048000, 1024000, 512000, 256000, 128000, 64000, 32000, 16000, 8000, 4000, 2000, 1000],
+    resolutions: calculateResolutions(), 
     origin: [ -5122600 , 5001100], // Origin (top-left corner in projected coordinates)
-    bounds: L.bounds([376623.67169999983, 31198.294800000265],[ 603021.9971000003, 183665.94109999947] ), // Projected bounds (adjust to your data)
-    //transformation: new L.Transformation(1, 0, 1, 5000000) // Adjust based on coordinate system
+    bounds: L.bounds([376623.67169999983, 31198.294800000265],[ 603021.9971000003, 183665.94109999947] ), // Projected bounds
   }
 );
 
 
-	const current_loc = L.layerGroup();
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            map_9490ed55967d3527d8d8eadaa359c9a3.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
-            var lc = L.control.locate().addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
-            lc.start();
-        });
-    }
+const current_loc = L.layerGroup();
+if (navigator.geolocation) {
+	navigator.geolocation.getCurrentPosition(function(position) {
+		map_9490ed55967d3527d8d8eadaa359c9a3.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
+		var lc = L.control.locate().addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+		lc.start();
+	});
+}
 
 
-    var tile_layer_654b1a1e37eec2b5f7e455ad9fa1e0c7 = L.tileLayer(
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-            minZoom: 0,
-            maxZoom: 19,
-            maxNativeZoom: 19,
-            noWrap: false,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            subdomains: "abc",
-            detectRetina: false,
-            tms: false,
-            opacity: 1,
-        }
-    );
+var tile_layer_654b1a1e37eec2b5f7e455ad9fa1e0c7 = L.tileLayer(
+	"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+	{
+		minZoom: 0,
+		maxZoom: 19,
+		maxNativeZoom: 19,
+		noWrap: false,
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		subdomains: "abc",
+		detectRetina: false,
+		tms: false,
+		opacity: 1,
+	}
+);
 
-    var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    });
 
-    var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    });
-
-    var dark = L.tileLayer('https://proxy.nakarte.me/https/heatmap-external-b.strava.com/tiles-auth/all/bluered/{z}/{x}/{y}.png?px=256', {
-        attribution: '© OpenStreetMap, © CartoDB', opacity: 0.5
-    });
-	
-
-	
-	function calculateResolutions() {
+function calculateResolutions() {
   const scaleDenominators = [
    495421943.22477657, 247710971.61238828, 123855485.80619414, 61927742.90309707, 30963871.451548535, 15481935.725774268, 7740967.862887134, 3870483.931443567, 1935241.9657217835, 967620.9828608917, 483810.49143044587, 241905.24571522293, 120952.62285761147, 60476.31142880573, 30238.155714402867, 15119.077857201433, 7559.538928600717, 3779.7694643003583, 1889.8847321501792, 944.9423660750896, 472.4711830375448, 236.2355915187724, 118.1177957593862, 59.0588978796931
   ];
-
   // Resolution = ScaleDenominator * 0.00028 (0.28mm/pixel)
   return scaleDenominators.map(scale => scale * 0.00028);
 }
-	var _slo_FK = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_FRANC_KATASTER/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 
-	 var _slo_Lidar = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/LidarTlaZgradbe_D96_obroba/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 var _slo_DOF2023 = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/DOF2023_D96/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 var _slo_TOPO = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/Topo_GURS_B/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 var _slo_AO1880 = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_AO_75K_1880/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 var _slo_AO1914 = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_AO_75K_1914/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-     var _slo_AO1930 = L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_VGIB_25K_1930/MapServer/tile/{z}/{y}/{x}?blankTile=false', {
-     crs:crs_si,
-     tileSize: 256
-	 });
-	 
-	 
-	const markers = L.layerGroup();
-	const tracks = L.layerGroup();
-	
-	
-	baseLayers = {
-	  "OpenStreetMap": openStreetMap,
-	  "satelite": satellite,
-	  "Strava": dark,
-	  "SLO - Franciscejski kataster": _slo_FK,
-	  "SLO - Lidar": _slo_Lidar,
-	  "SLO - DOF2023":_slo_DOF2023,
-	  "SLO - TOPO":_slo_TOPO,
-	  "SLO - AO1880":_slo_AO1880,
-	  "SLO - AO1914":_slo_AO1914,
-	  "SLO - AO1930":_slo_AO1930
-	};
-	overlays = {
-	  "tracks": tracks,
-	  "tradicionalni zakladi": markers
-	};
-    
-	    var map_9490ed55967d3527d8d8eadaa359c9a3 = L.map(
-        "map_9490ed55967d3527d8d8eadaa359c9a3",
-        {
-            center: [45.911983, 14.203683],
-            crs: L.CRS.EPSG3857,
-            zoom: 14,
-			maxZoom: 17,
-			maxBounds: [[45.40984351969618, 13.384233320965754], [46.79254390046736, 16.349284337951957]],
-            zoomControl: true,
-            preferCanvas: false,
-			layers:[tile_layer_654b1a1e37eec2b5f7e455ad9fa1e0c7,markers]
-        }
-    );
-	
-	
-	L.Map.prototype.setCrs = function(newCrs) {
-    this.options.crs = newCrs;
+
+const _overlays_map =  new Map();
+_overlays_map.set("tracks", 	L.layerGroup());
+_overlays_map.set("vrhovi", 	L.layerGroup());
+_overlays_map.set("koce", 		L.layerGroup());
+_overlays_map.set("jame", 		L.layerGroup());
+_overlays_map.set("slap", 		L.layerGroup());
+_overlays_map.set("geocaching", L.layerGroup());
+
+const _baselayers_map =  new Map();
+_baselayers_map.set("OpenStreetMap",	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'));
+_baselayers_map.set("Satelitte", 		L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'));
+_baselayers_map.set("Strava",		 	L.tileLayer('https://proxy.nakarte.me/https/heatmap-external-b.strava.com/tiles-auth/all/bluered/{z}/{x}/{y}.png?px=256', {attribution: '© OpenStreetMap, © CartoDB', opacity: 0.5    }));
+_baselayers_map.set("Hiking",		 	L.tileLayer('http://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png', {opacity: 0.5}));
+_baselayers_map.set("SLO - FK", 		L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_FRANC_KATASTER/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - Lidar", 		L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/LidarTlaZgradbe_D96_obroba/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - DOF2023", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/DOF2023_D96/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - TOPO", 		L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/Topo_GURS_B/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - AO1880", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_AO_75K_1880/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - AO1914", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_AO_75K_1914/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - YU1930", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_VGIB_25K_1930/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+_baselayers_map.set("SLO - YU1950", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_VGIB_50K_1950/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
+
+
+
+baseLayers = {};
+overlays = {};
+_baselayers_map.forEach((values, keys) => {
+	baseLayers[keys] = values
+})
+_overlays_map.forEach((values, keys) => {
+	overlays[keys] = values
+})
+
+	var map_9490ed55967d3527d8d8eadaa359c9a3 = L.map(
+	"map_9490ed55967d3527d8d8eadaa359c9a3",
+	{
+		center: [45.911983, 14.203683],
+		crs: L.CRS.EPSG3857,
+		zoom: 14,
+		maxZoom: 18,
+//		maxBounds: [[45.40984351969618, 13.384233320965754], [46.79254390046736, 16.349284337951957]],
+		zoomControl: true,
+		preferCanvas: false,
+		layers:[tile_layer_654b1a1e37eec2b5f7e455ad9fa1e0c7,_overlays_map.get("tracks")]
+	}
+);
+
+
+L.Map.prototype.setCrs = function(newCrs) {
+this.options.crs = newCrs;
 }
 
 map_9490ed55967d3527d8d8eadaa359c9a3.on('baselayerchange', function(layer) {
@@ -187,94 +155,125 @@ map_9490ed55967d3527d8d8eadaa359c9a3.on('baselayerchange', function(layer) {
 
 });
 	
-	const lcontrol = L.control.layers(baseLayers, overlays).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
-    // Function to calculate the distance between two points using the Haversine formula
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Radius of the Earth in km
-        const dLat = (lat2 - lat1) * (Math.PI / 180);
-        const dLon = (lon2 - lon1) * (Math.PI / 180);
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
-    }
+const lcontrol = L.control.layers(baseLayers, overlays).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+// Function to calculate the distance between two points using the Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+	const R = 6371; // Radius of the Earth in km
+	const dLat = (lat2 - lat1) * (Math.PI / 180);
+	const dLon = (lon2 - lon1) * (Math.PI / 180);
+	const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			  Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+			  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+	return R * c; // Distance in km
+}
 
-    // Function to find the nearest marker and display the distance
-    function findNearestMarker(lat, lon, markers) {
-        let nearestDistance = Infinity;
-        let nearestMarker = null;
+// Function to find the nearest marker and display the distance
+function findNearestMarker(lat, lon, markers) {
+	let nearestDistance = Infinity;
+	let nearestMarker = null;
 
-        markers.forEach(marker => {
-            const markerLat = marker.getLatLng().lat;
-            const markerLon = marker.getLatLng().lng;
-            const distance = calculateDistance(lat, lon, markerLat, markerLon);
+	markers.forEach(marker => {
+		const markerLat = marker.getLatLng().lat;
+		const markerLon = marker.getLatLng().lng;
+		const distance = calculateDistance(lat, lon, markerLat, markerLon);
 
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestMarker = marker;
-            }
-        });
+		if (distance < nearestDistance) {
+			nearestDistance = distance;
+			nearestMarker = marker;
+		}
+	});
 
-        return { nearestMarker, nearestDistance };
-    }
+	return { nearestMarker, nearestDistance };
+}
 
-    // Array to store all markers
-    //let markers = [];
+function getIcon(name){ 
+	switch (name){
+		case "koce":
+			return 	["green","home"];
+		break;
+		case "vrhovi":
+			return 	["black","flag"];
+		break;
+		case "slap":
+			return 	["blue","glass"];
+		break;
+		case "geocaching":
+			return 	["red","star"];
+		break;
+	}
+	
+	return 	["blue","info-sign"];
+}		
+// Array to store all markers
+//let markers = [];
 
-    function createmarkers(item, index) {
-        var marker_ = L.marker(
-            [item[1][0], item[1][1]],
-            {}
-        ).addTo(markers)//.addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+function createmarkers(name, item, index) {
+	var marker_ = L.marker(
+		[item[1][0], item[1][1]],
+		{}
+	).addTo(_overlays_map.get(name))//.addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
 
-        var icon_ = L.AwesomeMarkers.icon({
-            markerColor: "blue",
-            iconColor: "white",
-            icon: "info-sign",
-            prefix: "glyphicon",
-            extraClasses: "fa-rotate-0",
-        });
+	_icon = getIcon(name);
+	
+	var icon_ = L.AwesomeMarkers.icon({
+		markerColor: _icon[0],
+		iconColor: "white",
+		icon: _icon[1],
+		prefix: "glyphicon",
+		extraClasses: "fa-rotate-0",
+	});
 
-        marker_.setIcon(icon_);
+	marker_.setIcon(icon_);
 
-        var popup_ = L.popup({
-            maxWidth: 250,
-        });
+	var popup_ = L.popup({
+		maxWidth: 250,
+	});
+	if (name != "geocaching") {
+		var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br>` + item[2].replace(/\\r\\n/g, '<br>') + `<br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
+		popup_.setContent(html_);
+		marker_.bindPopup(popup_);
+		return
+	}
+	var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br><a href='https://www.geocaching.com/geocache/` + item[2] + `' target='_blank'>Geocache</a><br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
+	popup_.setContent(html_);
 
-        var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br><a href='https://www.geocaching.com/geocache/` + item[2] + `' target='_blank'>Geocache</a><br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
-        popup_.setContent(html_);
+	marker_.bindPopup(popup_);
 
-        marker_.bindPopup(popup_);
+	
 
-        
+	// Add click event to marker to show distance to nearest marker
+	marker_.on('click', function() {
+		const { nearestMarker, nearestDistance } = findNearestMarker(item[1][0], item[1][1], layer);
+		if (nearestMarker) {
+			const popupContent = `Distance to nearest marker: ${nearestDistance.toFixed(2)} km`;
+			marker_.getPopup().setContent(html_ + `<br><br>` + popupContent);
+		}
+	});
+}
 
-        // Add click event to marker to show distance to nearest marker
-        marker_.on('click', function() {
-            const { nearestMarker, nearestDistance } = findNearestMarker(item[1][0], item[1][1], markers);
-            if (nearestMarker) {
-                const popupContent = `Distance to nearest marker: ${nearestDistance.toFixed(2)} km`;
-                marker_.getPopup().setContent(html_ + `<br><br>` + popupContent);
-            }
-        });
-    }
+function getData( filename){
+fetch("GPX_points/"+filename+".gpx")
+	.then((response) => response.text())
+	.then((xmlString) => {
+		const parser = new DOMParser();
+		const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
-    fetch("geocaching.gpx")
-        .then((response) => response.text())
-        .then((xmlString) => {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
-            const points = xmlDoc.querySelectorAll("wpt");
-            points.forEach((point) => {
-                const lat = point.getAttribute("lat");
-                const lon = point.getAttribute("lon");
-                const name = point.querySelector("name").textContent;
-                const guid = point.querySelector("desc").textContent;
-                createmarkers([name, [lat, lon], guid], 1);
-            });
-        });
-		
+		const points = xmlDoc.querySelectorAll("wpt");
+		points.forEach((point) => {
+			const lat = point.getAttribute("lat");
+			const lon = point.getAttribute("lon");
+			const name = point.querySelector("name").textContent;
+			const guid = point.querySelector("desc")
+			g = ''
+			if (guid !=null) g=guid.textContent;
+			if (lat != null && lon != null)
+				createmarkers(filename,[name, [lat, lon], g], 1);
+			else
+				console.log("error "+name)
+		});
+	});
+}	
 
 // Add GPX control
 var gpxControl = L.Control.extend({
@@ -283,9 +282,35 @@ var gpxControl = L.Control.extend({
 		container.style.background = 'white';
 		container.style.padding = '5px';
 		
+		var radar = L.DomUtil.create('button', '', container);
+		radar.innerHTML = 'Radar';
+		radar.style.cursor = 'pointer';
+		radar.style.marginTop = '5px';
+		var showingRadar = false ;
+		var radarOverlay;
+		radar.onclick = function() {
+			
+			if (showingRadar)
+			{
+				map.removeLayer(radarOverlay);
+			}
+			else
+			{
+				var imageUrl = 'https://meteo.arso.gov.si/uploads/probase/www/observ/radar/si0-rm-anim.gif?'+Math.floor( Date.now() / 1000 ),
+				imageBounds = [[47.614123, 12.097093], [44.606990, 17.424275]];
+				radarOverlay=L.imageOverlay(imageUrl, imageBounds, {opacity: 0.65}).addTo(map);
+				
+				map.setView(map.getCenter(), 8);
+			}
+			showingRadar = !showingRadar ;
+		};
+		
+		
+		var createBreak = L.DomUtil.create('br', '', container);	
 		var button = L.DomUtil.create('button', '', container);
 		button.innerHTML = 'Load GPX';
 		button.style.cursor = 'pointer';
+		button.style.marginTop = '5px';
 		
 		var fileInput = L.DomUtil.create('input', '', container);
 		fileInput.type = 'file';
@@ -306,7 +331,8 @@ var gpxControl = L.Control.extend({
 		downloadButton.style.cursor = 'pointer';
 		downloadButton.style.marginTop = '5px';
 		downloadButton.disabled = true; // Disabled by default
-
+		
+		
 		// Trigger file input on button click
 		button.onclick = function() {
 			fileInput.click();
@@ -337,7 +363,7 @@ var gpxControl = L.Control.extend({
 					if (window.gpxLayer) {
 						map_9490ed55967d3527d8d8eadaa359c9a3.removeLayer(window.gpxLayer);
 					}
-					window.gpxLayer = L.polyline(coords, {color: 'red'}).addTo(tracks);
+					window.gpxLayer = L.polyline(coords, {color: 'red'}).addTo(_overlays_map.get('tracks'));
 					map_9490ed55967d3527d8d8eadaa359c9a3.fitBounds(window.gpxLayer.getBounds());
 				};
 				reader.readAsText(file);
@@ -434,5 +460,13 @@ var gpxControl = L.Control.extend({
 // Add control to map
 new gpxControl({ position: 'topright' }).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
 
+map_9490ed55967d3527d8d8eadaa359c9a3.on({
+    overlayadd: function(e) {
+		getData(e.name);
+    },
+    overlayremove: function(e) {
+		_overlays_map.get(e.name).clearLayers()
+    }
+});
 </script>
 </html>
