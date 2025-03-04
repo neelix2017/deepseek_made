@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="https://gpx.studio" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/PowerExtension/v1 http://www.garmin.com/xmlschemas/PowerExtensionv1.xsd http://www.topografix.com/GPX/gpx_style/0/2 http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxpx="http://www.garmin.com/xmlschemas/PowerExtension/v1" xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2">
+  <metadata>
+    <name>Kamere</name>
+  </metadata>
+  <wpt lat="46.507915" lon="15.19518">
+    <ele>1497.5872719099752</ele>
+    <name>Velika Kopa</name>
+    <link href="https://www.whatsupcams.com/wgt/si_kope03"/>
+  </wpt>
+  <wpt lat="46.502399" lon="15.212645">
+    <ele>1378.8533136232058</ele>
+    <name>Sedlo</name>
+    <link href="https://www.whatsupcams.com/wgt/si_kope01"/>
+  </wpt>
+  <wpt lat="46.503798" lon="15.210546">
+    <ele>1379.102668384797</ele>
+    <name>Pungart</name>
+    <link href="https://www.whatsupcams.com/wgt/si_kope02"/>
+  </wpt>
+  <wpt lat="46.525162" lon="15.178319">
+    <ele>1044.0112183720353</ele>
+    <name>Kaštivnik</name>
+    <link href="http://193.77.156.79:8080/zm/cgi-bin/nph-zms?mode=jpeg&amp;maxfps=6buffer=1000&amp;monitor=5&amp;scale=60&amp;user=public&amp;pass=public"/>
+  </wpt>
+  <wpt lat="46.45332" lon="15.332008">
+    <ele>1487.001783702174</ele>
+    <name>Rogla - Planja</name>
+    <link href="https://www.whatsupcams.com/wgt/si_rogla1"/>
+  </wpt>
+  <wpt lat="46.509193" lon="15.078977">
+    <ele></ele>
+    <name>Slovenj Gradec</name>
+    <link href="http://77.38.12.202:4027/record/current.jpg?rand=10198"/>
+  </wpt>
+  <wpt lat="46.344633" lon="13.922618">
+    <ele></ele>
+    <name>Pokljuka</name>
+    <link href="https://www.whatsupcams.com/wgt/si_pokljuka1"/>
+  </wpt>
+  <wpt lat="45.547946" lon="13.724950">
+    <ele></ele>
+    <name>Koper</name>
+    <link href="https://www.whatsupcams.com/wgt/si_koper04"/>
+  </wpt>
+  <wpt lat="45.919485" lon="14.228549">
+    <ele></ele>
+    <name>Logatec</name>
+    <link href="https://www.drsc.si/kamere/KamSlike/Logatec/slike/Lgt1_0001.jpg"/>
+  </wpt> 
+   <wpt lat="45.908775" lon="14.256268">
+    <ele></ele>
+    <name>Logatec</name>
+    <link href="https://kamere.dars.si/kamere/msc2pics/Kam8_LOM_LJ.jpg"/>
+  </wpt> 
+    <wpt lat="45.7664" lon="14.1975">
+    <ele>533</ele>
+    <name>Postojna</name>
+    <link href="https://meteo.arso.gov.si/uploads/probase/www/observ/webcam/POSTOJNA_dir/siwc_POSTOJNA_w.jpg"/>
+  </wpt>   
+   <wpt lat="46.49" lon="15.1161">
+    <ele></ele>
+    <name>Slovenj Gradec</name>
+    <link href="
+https://meteo.arso.gov.si/uploads/probase/www/observ/webcam/SLOVE-GRA_dir/siwc_20250225-1900_SLOVE-GRA_nw.jpg"/>
+  </wpt>  
+</gpx>

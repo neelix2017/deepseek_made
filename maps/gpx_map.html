@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,15 +7,50 @@
         L_DISABLE_3D = false;
     </script>
     <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+	<style>
+    .leaflet-control-custom {
+	  width: 44px;
+	  height: 44px;
+      background: white;
+      padding: 5px;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    .leaflet-control-custom.expanded {
+      width: 290px; /* Adjust width when expanded */
+	  height: 360px;
+    }
+	.leaflet-control-custom button {
+	  float: right;
+      cursor: pointer;
+    }
+    .leaflet-control-custom .options {
+      display: none;
+      margin-top: 5px;
+    }
+    .leaflet-control-custom.expanded .options {
+      display: block;
+    }
+	.leaflet-control-layers-weather {
+	background-image: url(images/weather.png);
+	background-size: 100% 100%;
+	width: 36px;
+	height: 36px;
+	}
+  </style>
     <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="javascript/leaflet.js"></script> 
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <script src="https://npmcdn.com/leaflet-geometryutil"></script>
-	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js"></script>
+    <script src="javascript/leaflet.awesome-markers.js"></script>
+    <script src="javascript/leaflet.geometryutil.js"></script>
+	<script src="javascript/L.Control.Locate.min.js" charset="utf-8"></script>
+    <script src="javascript/proj4.js"></script>
+	<script src="javascript/proj4leaflet.min.js"></script>
+	<!--
+	<script src="https://tkrajina.github.io/leaflet-editable-polyline/leaflet-editable-polyline.js"></script>
+	-->
+
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
@@ -38,7 +71,6 @@
     </style>
 </head>
 <body>
-	<div id='distance'></div>
     <div class="folium-map" id="map_9490ed55967d3527d8d8eadaa359c9a3"></div>
 </body>
 <script>
@@ -55,16 +87,7 @@ const crs_si = new L.Proj.CRS(
   }
 );
 
-
-const current_loc = L.layerGroup();
-if (navigator.geolocation) {
-	navigator.geolocation.getCurrentPosition(function(position) {
-		map_9490ed55967d3527d8d8eadaa359c9a3.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
-		var lc = L.control.locate().addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
-		lc.start();
-	});
-}
-
+var lc;
 
 var tile_layer_654b1a1e37eec2b5f7e455ad9fa1e0c7 = L.tileLayer(
 	"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -90,12 +113,14 @@ function calculateResolutions() {
   return scaleDenominators.map(scale => scale * 0.00028);
 }
 
+
 const _overlays_map =  new Map();
 _overlays_map.set("tracks", 	L.layerGroup());
 _overlays_map.set("vrhovi", 	L.layerGroup());
 _overlays_map.set("koce", 		L.layerGroup());
 _overlays_map.set("jame", 		L.layerGroup());
 _overlays_map.set("slap", 		L.layerGroup());
+_overlays_map.set("kamere", 		L.layerGroup());
 _overlays_map.set("geocaching", L.layerGroup());
 
 const _baselayers_map =  new Map();
@@ -113,7 +138,7 @@ _baselayers_map.set("SLO - YU1930", 	L.tileLayer('https://geohub.gov.si/ags/rest
 _baselayers_map.set("SLO - YU1950", 	L.tileLayer('https://geohub.gov.si/ags/rest/services/TEMELJNE_KARTE/MK_VGIB_50K_1950/MapServer/tile/{z}/{y}/{x}?blankTile=false', {crs:crs_si,tileSize: 256}));
 
 
-
+const current_loc = L.layerGroup();
 baseLayers = {};
 overlays = {};
 _baselayers_map.forEach((values, keys) => {
@@ -123,7 +148,7 @@ _overlays_map.forEach((values, keys) => {
 	overlays[keys] = values
 })
 
-	var map_9490ed55967d3527d8d8eadaa359c9a3 = L.map(
+var map_9490ed55967d3527d8d8eadaa359c9a3 = L.map(
 	"map_9490ed55967d3527d8d8eadaa359c9a3",
 	{
 		center: [45.911983, 14.203683],
@@ -169,15 +194,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 // Function to find the nearest marker and display the distance
-function findNearestMarker(lat, lon, markers) {
-	let nearestDistance = Infinity;
+function findNearestMarker( name, lat, lon) {
+	let nearestDistance = 1000000000000000000;
 	let nearestMarker = null;
-
-	markers.forEach(marker => {
+	 _overlays_map.get(name).eachLayer(function (marker) {
 		const markerLat = marker.getLatLng().lat;
 		const markerLon = marker.getLatLng().lng;
 		const distance = calculateDistance(lat, lon, markerLat, markerLon);
-
 		if (distance < nearestDistance) {
 			nearestDistance = distance;
 			nearestMarker = marker;
@@ -186,24 +209,43 @@ function findNearestMarker(lat, lon, markers) {
 
 	return { nearestMarker, nearestDistance };
 }
+ 
+function MsgDistance(){
+	var my_position = map_9490ed55967d3527d8d8eadaa359c9a3.getCenter()
+	console.log(my_position)
+	var { nearestMarker, nearestDistance } = findNearestMarker('geocaching' , my_position.lat, my_position.lng);
+			console.log("Nearest:" + nearestMarker.title)
+			
+			if (nearestMarker) {
+			
+				const popupContent = `Razdalja do     ${nearestMarker.title}   : ${nearestDistance.toFixed(4)} km`;
+				//map_9490ed55967d3527d8d8eadaa359c9a3.panTo(nearestMarker.getLatLng());
+				document.getElementsByClassName("leaflet-bottom leaflet-left")[0].innerHTML =  popupContent;
+				document.getElementsByClassName("leaflet-bottom leaflet-left")[0].style.cssText  =  "background: white;    padding: 10px;    font-size: 15px;    margin: 5px;"
+			};
+			myTimeout = setTimeout(MsgDistance, 5000);
+}
 
 function getIcon(name){ 
 	switch (name){
+		case "kamere":
+			return 	["white","camera","black"];
+		break;
 		case "koce":
-			return 	["green","home"];
+			return 	["green","home","white"];
 		break;
 		case "vrhovi":
-			return 	["black","flag"];
+			return 	["black","flag","white"];
 		break;
 		case "slap":
-			return 	["blue","glass"];
+			return 	["blue","glass","black"];
 		break;
 		case "geocaching":
-			return 	["red","star"];
+			return 	["red","star","white"];
 		break;
 	}
 	
-	return 	["blue","info-sign"];
+	return 	["blue","info-sign","white"];
 }		
 // Array to store all markers
 //let markers = [];
@@ -213,12 +255,12 @@ function createmarkers(name, item, index) {
 		[item[1][0], item[1][1]],
 		{}
 	).addTo(_overlays_map.get(name))//.addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
-
+	marker_.title =  item[0];
 	_icon = getIcon(name);
 	
 	var icon_ = L.AwesomeMarkers.icon({
 		markerColor: _icon[0],
-		iconColor: "white",
+		iconColor: _icon[2],
 		icon: _icon[1],
 		prefix: "glyphicon",
 		extraClasses: "fa-rotate-0",
@@ -229,22 +271,23 @@ function createmarkers(name, item, index) {
 	var popup_ = L.popup({
 		maxWidth: 250,
 	});
-	if (name != "geocaching") {
-		var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br>` + item[2].replace(/\\r\\n/g, '<br>') + `<br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
-		popup_.setContent(html_);
-		marker_.bindPopup(popup_);
-		return
+	var data = '';
+	if (name == 'geocaching')
+	{
+		data = "<br><br><a href='https://www.geocaching.com/geocache/" + item[2][0] + "' target='_blank'>Geocache</a>";
 	}
-	var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br><a href='https://www.geocaching.com/geocache/` + item[2] + `' target='_blank'>Geocache</a><br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
+	else if (name == 'kamere')
+	{
+		data = "<br><br><iframe src='" + item[2][1] + "' style='border:0; height: 185px; width: 265px;'></iframe>";
+	}
+	var html_ = $(`<div id="html_641caad75198e8716a5cabbdb9cbb757" style="width: 100.0%; height: 100.0%;">` + item[0] + `<br>Lat: ` + item[1][0] + `<br>Lon: ` + item[1][1] + `<br><br>` + item[2][0].replace(/\\r\\n/g, '<br>') + data+ `<br><br><a href='https://www.google.com/maps/dir/Current+Location/` + item[1][0] + `,` + item[1][1] + `' target='_blank'>Navodila za vožnjo</a></div>`)[0];
 	popup_.setContent(html_);
-
 	marker_.bindPopup(popup_);
-
 	
 
 	// Add click event to marker to show distance to nearest marker
 	marker_.on('click', function() {
-		const { nearestMarker, nearestDistance } = findNearestMarker(item[1][0], item[1][1], layer);
+		const { nearestMarker, nearestDistance } = findNearestMarker(item[1][0], item[1][1], _overlays_map.get(name));
 		if (nearestMarker) {
 			const popupContent = `Distance to nearest marker: ${nearestDistance.toFixed(2)} km`;
 			marker_.getPopup().setContent(html_ + `<br><br>` + popupContent);
@@ -264,209 +307,76 @@ fetch("GPX_points/"+filename+".gpx")
 			const lat = point.getAttribute("lat");
 			const lon = point.getAttribute("lon");
 			const name = point.querySelector("name").textContent;
-			const guid = point.querySelector("desc")
+			const guid = point.querySelector("desc");
+			const link = point.querySelector("link");
 			g = ''
+			l = ''
 			if (guid !=null) g=guid.textContent;
+			if (link !=null) l=link.getAttribute("href");
 			if (lat != null && lon != null)
-				createmarkers(filename,[name, [lat, lon], g], 1);
+				createmarkers(filename,[name, [lat, lon], [g,l]], 1);
 			else
 				console.log("error "+name)
 		});
 	});
 }	
 
-// Add GPX control
-var gpxControl = L.Control.extend({
-	onAdd: function(map) {
-		var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-		container.style.background = 'white';
-		container.style.padding = '5px';
-		
-		var radar = L.DomUtil.create('button', '', container);
-		radar.innerHTML = 'Radar';
-		radar.style.cursor = 'pointer';
-		radar.style.marginTop = '5px';
-		var showingRadar = false ;
-		var radarOverlay;
-		radar.onclick = function() {
-			
-			if (showingRadar)
-			{
-				map.removeLayer(radarOverlay);
-			}
-			else
-			{
-				var imageUrl = 'https://meteo.arso.gov.si/uploads/probase/www/observ/radar/si0-rm-anim.gif?'+Math.floor( Date.now() / 1000 ),
-				imageBounds = [[47.614123, 12.097093], [44.606990, 17.424275]];
-				radarOverlay=L.imageOverlay(imageUrl, imageBounds, {opacity: 0.65}).addTo(map);
-				
-				map.setView(map.getCenter(), 8);
-			}
-			showingRadar = !showingRadar ;
-		};
-		
-		
-		var createBreak = L.DomUtil.create('br', '', container);	
-		var button = L.DomUtil.create('button', '', container);
-		button.innerHTML = 'Load GPX';
-		button.style.cursor = 'pointer';
-		button.style.marginTop = '5px';
-		
-		var fileInput = L.DomUtil.create('input', '', container);
-		fileInput.type = 'file';
-		fileInput.accept = '.gpx';
-		fileInput.style.display = 'none';
-		
-		var createBreak = L.DomUtil.create('br', '', container);		
-		// Button to create track
-		var createButton = L.DomUtil.create('button', '', container);
-		createButton.innerHTML = 'Create Track';
-		createButton.style.cursor = 'pointer';
-		createButton.style.marginTop = '5px';
-		
-		var createBreak = L.DomUtil.create('br', '', container);		
-		// Button to download track as GPX
-        var downloadButton = L.DomUtil.create('button', '', container);
-		downloadButton.innerHTML = 'Download GPX';
-		downloadButton.style.cursor = 'pointer';
-		downloadButton.style.marginTop = '5px';
-		downloadButton.disabled = true; // Disabled by default
-		
-		
-		// Trigger file input on button click
-		button.onclick = function() {
-			fileInput.click();
-		};
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+function pad(n) {
+    return (n < 10) ? ("0" + n) : n;
+}
 
-		// Handle file selection
-		fileInput.onchange = function(e) {
-			var file = e.target.files[0];
-			if (file) {
-				var reader = new FileReader();
-				reader.onload = function(e) {
-					var parser = new DOMParser();
-					// console.log(e.target.result)
-					var xmlDoc = parser.parseFromString(e.target.result, "text/xml");
-					var trackPoints = xmlDoc.getElementsByTagName('trkpt');
-					var coords = [];
-					
-					for (var i = 0; i < trackPoints.length; i++) {
-						var pt = trackPoints[i];
-						var lat = parseFloat(pt.getAttribute('lat'));
-						var lon = parseFloat(pt.getAttribute('lon'));
-						// Convert WGS84 to EPSG:3794
-						// var projected = proj4('EPSG:4326', 'EPSG:3794', [lon, lat]);
-						coords.push([lat, lon]); // Adjust axis order if needed
-					}
-					
-					// Add polyline to map
-					if (window.gpxLayer) {
-						map_9490ed55967d3527d8d8eadaa359c9a3.removeLayer(window.gpxLayer);
-					}
-					window.gpxLayer = L.polyline(coords, {color: 'red'}).addTo(_overlays_map.get('tracks'));
-					map_9490ed55967d3527d8d8eadaa359c9a3.fitBounds(window.gpxLayer.getBounds());
-				};
-				reader.readAsText(file);
-                    }
-                };
-				
-				 // Handle track creation
-                var isCreatingTrack = false;
-                var trackPoints = [];
-                var tempPolyline;
 
-                createButton.onclick = function() {
-                    isCreatingTrack = !isCreatingTrack; // Toggle track creation mode
+var _hideVreme = function(e) {
+ alert(2)
+};
+var _showVreme = function(e) {
+ alert(1)
+};
 
-                    if (isCreatingTrack) {
-                        createButton.innerHTML = 'Stop Creating Track';
-                        trackPoints = []; // Reset points
-                        if (tempPolyline) {
-                            map_9490ed55967d3527d8d8eadaa359c9a3.removeLayer(tempPolyline);
-                        }
-
-                        // Add click event to map
-                        map_9490ed55967d3527d8d8eadaa359c9a3.on('click', addTrackPoint);
-                    } else {
-                        createButton.innerHTML = 'Create Track';
-                        map_9490ed55967d3527d8d8eadaa359c9a3.off('click', addTrackPoint); // Stop listening for clicks
-
-                        if (trackPoints.length > 1) {
-                            // Add final polyline
-                            if (window.gpxLayer) {
-                                map_9490ed55967d3527d8d8eadaa359c9a3.removeLayer(window.gpxLayer);
-                            }
-                            window.gpxLayer = L.polyline(trackPoints, {color: 'blue'}).addTo(tracks);
-                            map_9490ed55967d3527d8d8eadaa359c9a3.fitBounds(window.gpxLayer.getBounds());
-							
-							// Enable download button
-                            downloadButton.disabled = false;
-                        }
-
-                        if (tempPolyline) {
-                            map.removeLayer(tempPolyline);
-                            tempPolyline = null;
-                        }
-                    }
-                };
-
-                function addTrackPoint(e) {
-				if (e.originalEvent.target != document.querySelector('div#map_9490ed55967d3527d8d8eadaa359c9a3')) return 
-                    trackPoints.push([e.latlng.lat, e.latlng.lng]);
-
-                    // Update temporary polyline
-                    if (tempPolyline) {
-                        map.removeLayer(tempPolyline);
-                    }
-                    if (trackPoints.length > 1) {
-                        tempPolyline = L.polyline(trackPoints, {color: 'blue', dashArray: '5, 5'}).addTo(map);
-                    }
-                }
-
-// Handle GPX download
-                downloadButton.onclick = function() {
-                    if (trackPoints.length > 1) {
-                        var gpxContent = generateGPX(trackPoints);
-                        var blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
-                        var link = document.createElement('a');
-                        link.href = URL.createObjectURL(blob);
-                        link.download = 'track.gpx';
-                        link.click();
-                    }
-                };
-
-                // Function to generate GPX content
-                function generateGPX(points) {
-                    var gpx = '<?xml version="1.0" encoding="UTF-8"?>\n';
-                    gpx += '<gpx version="1.1" creator="Leaflet">\n';
-                    gpx += '  <trk>\n';
-                    gpx += '    <trkseg>\n';
-
-                    points.forEach(function(point) {
-                        gpx += `      <trkpt lat="${point[0]}" lon="${point[1]}"></trkpt>\n`;
-                    });
-
-                    gpx += '    </trkseg>\n';
-                    gpx += '  </trk>\n';
-                    gpx += '</gpx>';
-
-                    return gpx;
-                }
-
-                return container;
-            }
-        });
-
-// Add control to map
-new gpxControl({ position: 'topright' }).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
-
+var myTimeout
 map_9490ed55967d3527d8d8eadaa359c9a3.on({
     overlayadd: function(e) {
+		if (e.name == 'tracks')return;
 		getData(e.name);
+		if (e.name == 'geocaching'){
+			if (navigator.geolocation) {
+				myTimeout = setTimeout(MsgDistance, 5000);
+			}
+		}
     },
     overlayremove: function(e) {
-		_overlays_map.get(e.name).clearLayers()
-    }
+		if (e.name == 'tracks')return;
+		_overlays_map.get(e.name).clearLayers();
+		clearTimeout(myTimeout);
+		document.getElementsByClassName("leaflet-bottom leaflet-left")[0].innerHTML =  " ";
+		document.getElementsByClassName("leaflet-bottom leaflet-left")[0].style.cssText  =  "";
+    },
+	dragstart: function(e) {
+		lc._stopFollowing;
+	}
 });
+
+if (navigator.geolocation) {
+	lc = L.control.locate({showCompass:true,flyTo:true,enableHighAccuracy: false}).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+	lc.start();	
+}
+</script>
+<!--<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+-->
+<script src="javascript/weathercontrol.js"></script>
+<script src="javascript/L.DraggableLines.js"></script>
+<script src="javascript/gpxcontrol.js"></script>
+<script src="javascript/navcontrol.js"></script>
+<script>
+// Add control to map
+new gpxControl({ position: 'topright' }).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+new vremeControl({position :'bottomright'}).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
+new navControl({ position: 'topright' }).addTo(map_9490ed55967d3527d8d8eadaa359c9a3);
 </script>
 </html>
